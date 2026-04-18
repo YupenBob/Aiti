@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Bot, Hexagon, Terminal, ArrowRight, Share2, Sparkles, RefreshCcw } from 'lucide-react';
 import { questions, calculateAITI, PersonalityType } from './data';
 import { cn } from './lib/utils';
 import CloverLogo from './clover-logo.svg';
+import cloverLogoSvgUrl from './clover-logo.svg?url';
 
 type Phase = 'intro' | 'test' | 'calculating' | 'result';
 
@@ -37,6 +38,183 @@ export default function App() {
       }, 300);
     }
   };
+
+  const handleShare = async () => {
+    if (!result) return;
+
+    // Create canvas for share image
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set canvas size (1080x1920 for mobile-style card)
+    canvas.width = 1080;
+    canvas.height = 1350;
+
+    // Background gradient
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    bgGrad.addColorStop(0, '#1E293B');
+    bgGrad.addColorStop(1, '#0F172A');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Header accent bar
+    ctx.fillStyle = '#2563EB';
+    ctx.fillRect(0, 0, canvas.width, 8);
+
+    // Clover logo (small, top right)
+    const logoImg = new Image();
+    logoImg.crossOrigin = 'anonymous';
+    await new Promise<void>((resolve) => {
+      logoImg.onload = () => resolve();
+      logoImg.onerror = () => resolve();
+      logoImg.src = cloverLogoSvgUrl;
+    });
+    if (logoImg.complete && logoImg.naturalWidth > 0) {
+      ctx.drawImage(logoImg, canvas.width - 90, 30, 60, 60);
+    } else {
+      // Fallback: draw a simple clover circle
+      ctx.fillStyle = '#D4AF37';
+      ctx.beginPath();
+      ctx.arc(canvas.width - 60, 60, 30, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // AITI badge code
+    ctx.fillStyle = '#F59E0B';
+    ctx.font = 'bold 20px sans-serif';
+    ctx.textAlign = 'left';
+    const badgeW = ctx.measureText(result.code).width + 24;
+    roundRect(ctx, 40, 120, badgeW, 42, 6);
+    ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 20px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(result.code, 52, 150);
+
+    // Main name
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 110px sans-serif';
+    ctx.fillText(result.name, 40, 310);
+
+    // Title
+    ctx.fillStyle = '#F59E0B';
+    ctx.font = 'bold 36px sans-serif';
+    ctx.fillText(result.title, 40, 380);
+
+    // Divider line
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(40, 430);
+    ctx.lineTo(canvas.width - 40, 430);
+    ctx.stroke();
+
+    // Traits
+    const traitsPerRow = 3;
+    result.traits.forEach((trait, idx) => {
+      const col = idx % traitsPerRow;
+      const row = Math.floor(idx / traitsPerRow);
+      const x = 40 + col * 330;
+      const y = 470 + row * 55;
+      ctx.fillStyle = '#334155';
+      roundRect(ctx, x, y, 300, 42, 8);
+      ctx.fill();
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = 'bold 18px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(trait, x + 150, y + 28);
+    });
+
+    // Description
+    ctx.fillStyle = '#E2E8F0';
+    ctx.font = '24px sans-serif';
+    ctx.textAlign = 'left';
+    const maxWidth = canvas.width - 80;
+    const lineHeight = 36;
+    const descLines = wrapText(ctx, result.description, maxWidth);
+    descLines.forEach((line, i) => {
+      ctx.fillText(line, 40, 650 + i * lineHeight);
+    });
+
+    // Footer divider
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(40, canvas.height - 180);
+    ctx.lineTo(canvas.width - 40, canvas.height - 180);
+    ctx.stroke();
+
+    // Footer text
+    ctx.fillStyle = '#94A3B8';
+    ctx.font = '22px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🍀 CloverTools | AITI - 硅基人格测试', canvas.width / 2, canvas.height - 130);
+
+    ctx.fillStyle = '#64748B';
+    ctx.font = '20px sans-serif';
+    ctx.fillText('© 2026 York & Clover', canvas.width / 2, canvas.height - 90);
+
+    // Clover & York attribution
+    ctx.fillStyle = '#475569';
+    ctx.font = 'bold 26px sans-serif';
+    ctx.fillText('Clover ☘️ & York (YupenBob)', canvas.width / 2, canvas.height - 45);
+
+    // Download
+    const link = document.createElement('a');
+    link.download = `AITI-${result.code}-${result.name}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
+
+  // Helper: rounded rectangle
+  function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Helper: wrap text to maxWidth
+  function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+    const words = text.split('');
+    const lines: string[] = [];
+    let current = '';
+    for (const char of words) {
+      const test = current + char;
+      if (ctx.measureText(test).width > maxWidth) {
+        lines.push(current);
+        current = char;
+      } else {
+        current = test;
+      }
+    }
+    if (current) lines.push(current);
+    // Group by words for better wrapping
+    const wordText = text;
+    const wordList = wordText.split(/[\s\n]/).filter(Boolean);
+    const finalLines: string[] = [];
+    let line = '';
+    for (const word of wordList) {
+      const test = line ? `${line} ${word}` : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        finalLines.push(line);
+        line = word;
+      } else {
+        line = test;
+      }
+    }
+    if (line) finalLines.push(line);
+    return finalLines;
+  }
 
   return (
     <div className="md:grid md:grid-cols-[300px_1fr] min-h-screen md:max-h-[100vh] md:overflow-hidden bg-[#F0F4F8] text-[#1A202C] font-sans selection:bg-[#2563EB]/20">
@@ -290,13 +468,17 @@ export default function App() {
                     重新测试
                   </button>
                   <button 
-                    onClick={() => alert("功能开发中，请截图分享您的AITI结果！")}
+                    onClick={handleShare}
                     className="flex-1 flex items-center justify-center px-6 py-4 rounded-xl text-white font-semibold transition-all bg-[#2563EB] hover:bg-blue-700 shadow-sm"
                   >
                     <Share2 className="w-5 h-5 mr-3" />
                     保存人格报告
                   </button>
                 </div>
+
+                <p className="text-center text-[#94A3B8] text-sm mt-6 select-none">
+                  Clover ☘️ &amp; York (YupenBob)
+                </p>
               </div>
             </motion.div>
           )}
