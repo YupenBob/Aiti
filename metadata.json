@@ -1,0 +1,6 @@
+{
+  "name": "AITI: 硅基人格测试",
+  "description": "类似MBTI的16种AI模型人格测试系统，帮助用户测定他们最符合哪个人工智能大模型（如DeepSeek、Grok、GPT、Claude等），内含20道专业维度测试题。",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
