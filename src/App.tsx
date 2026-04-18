@@ -47,9 +47,9 @@ export default function App() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size (scaled to 50% of original: 1080x1350 → 540x675)
-    canvas.width = 540;
-    canvas.height = 675;
+    // Set canvas size — restored to original 1080x1350
+    canvas.width = 1080;
+    canvas.height = 1350;
 
     // Background gradient
     const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -60,9 +60,9 @@ export default function App() {
 
     // Header accent bar
     ctx.fillStyle = '#2563EB';
-    ctx.fillRect(0, 0, canvas.width, 4);
+    ctx.fillRect(0, 0, canvas.width, 8);
 
-    // Clover logo (small, top right)
+    // Clover logo (top right)
     const logoImg = new Image();
     logoImg.crossOrigin = 'anonymous';
     await new Promise<void>((resolve) => {
@@ -71,43 +71,42 @@ export default function App() {
       logoImg.src = cloverLogoSvgUrl;
     });
     if (logoImg.complete && logoImg.naturalWidth > 0) {
-      ctx.drawImage(logoImg, canvas.width - 30, 10, 20, 20);
+      ctx.drawImage(logoImg, canvas.width - 60, 20, 40, 40);
     } else {
-      // Fallback: draw a simple clover circle
       ctx.fillStyle = '#D4AF37';
       ctx.beginPath();
-      ctx.arc(canvas.width - 20, 20, 10, 0, Math.PI * 2);
+      ctx.arc(canvas.width - 40, 40, 20, 0, Math.PI * 2);
       ctx.fill();
     }
 
     // AITI badge code
     ctx.fillStyle = '#F59E0B';
-    ctx.font = 'bold 8.5px sans-serif';
+    ctx.font = 'bold 17px sans-serif';
     ctx.textAlign = 'left';
-    const badgeW = ctx.measureText(result.code).width + 9.5;
-    roundRect(ctx, 13.5, 36.5, badgeW, 16.5, 2.5);
+    const badgeW = ctx.measureText(result.code).width + 19;
+    roundRect(ctx, 27, 73, badgeW, 33, 5);
     ctx.fill();
     ctx.fillStyle = '#000';
-    ctx.font = 'bold 8.5px sans-serif';
+    ctx.font = 'bold 17px sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(result.code, 18.5, 48.5);
+    ctx.fillText(result.code, 37, 97);
 
     // Main name
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 43.5px sans-serif';
-    ctx.fillText(result.name, 13.5, 96.5);
+    ctx.font = 'bold 87px sans-serif';
+    ctx.fillText(result.name, 27, 193);
 
     // Title
     ctx.fillStyle = '#F59E0B';
-    ctx.font = 'bold 15.5px sans-serif';
-    ctx.fillText(result.title, 13.5, 121.5);
+    ctx.font = 'bold 31px sans-serif';
+    ctx.fillText(result.title, 27, 243);
 
     // Divider line
     ctx.strokeStyle = '#334155';
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(13.5, 136.5);
-    ctx.lineTo(canvas.width - 13.5, 136.5);
+    ctx.moveTo(27, 273);
+    ctx.lineTo(canvas.width - 27, 273);
     ctx.stroke();
 
     // Traits
@@ -115,51 +114,49 @@ export default function App() {
     result.traits.forEach((trait, idx) => {
       const col = idx % traitsPerRow;
       const row = Math.floor(idx / traitsPerRow);
-      const x = 13.5 + col * 113.5;
-      const y = 146.5 + row * 21.5;
+      const x = 27 + col * 227;
+      const y = 293 + row * 43;
       ctx.fillStyle = '#334155';
-      roundRect(ctx, x, y, 103.5, 16.5, 3.5);
+      roundRect(ctx, x, y, 207, 33, 7);
       ctx.fill();
       ctx.fillStyle = '#CBD5E1';
-      ctx.font = 'bold 7.5px sans-serif';
+      ctx.font = 'bold 15px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(trait, x + 51.75, y + 11);
+      ctx.fillText(trait, x + 103.5, y + 22);
     });
 
-    // Description — auto-wrap (scaled to 50%)
+    // Description — auto-wrap with per-char CJK handling
     ctx.fillStyle = '#E2E8F0';
-    ctx.font = '10px sans-serif';
+    ctx.font = '20px sans-serif';
     ctx.textAlign = 'left';
-    const maxWidth = canvas.width - 26.5;
-    const lineHeight = 15.5;
-    const descLines = wrapText(ctx, result.description, maxWidth);
-    descLines.forEach((line, i) => {
-      ctx.fillText(line, 13.5, 207 + i * lineHeight);
-    });
+    const maxWidth = canvas.width - 54;
+    const lineHeight = 31;
+    let descY = 414;
+    descY = wrapText(ctx, result.description, 27, descY, maxWidth, lineHeight);
 
     // Footer divider
-    const footerY = 310 + descLines.length * lineHeight;
+    const footerY = descY + 25;
     ctx.strokeStyle = '#334155';
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(20, footerY);
-    ctx.lineTo(canvas.width - 20, footerY);
+    ctx.moveTo(40, footerY);
+    ctx.lineTo(canvas.width - 40, footerY);
     ctx.stroke();
 
     // Footer text
     ctx.fillStyle = '#94A3B8';
-    ctx.font = '13px sans-serif';
+    ctx.font = '26px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('☘️ CloverTools: tools.xsanye.cn', canvas.width / 2, footerY + 25);
+    ctx.fillText('☘️ CloverTools: tools.xsanye.cn', canvas.width / 2, footerY + 50);
 
     ctx.fillStyle = '#64748B';
-    ctx.font = '12px sans-serif';
-    ctx.fillText('© 2026 York & Clover', canvas.width / 2, footerY + 45);
+    ctx.font = '24px sans-serif';
+    ctx.fillText('© 2026 York & Clover', canvas.width / 2, footerY + 90);
 
     // Clover & York attribution
     ctx.fillStyle = '#475569';
-    ctx.font = 'bold 15px sans-serif';
-    ctx.fillText('Clover ☘️ & York (YupenBob)', canvas.width / 2, footerY + 67.5);
+    ctx.font = 'bold 30px sans-serif';
+    ctx.fillText('Clover ☘️ & York (YupenBob)', canvas.width / 2, footerY + 135);
 
     // Download
     const link = document.createElement('a');
@@ -184,48 +181,37 @@ export default function App() {
     ctx.fill();
   }
 
-  // Helper: wrap text to maxWidth (handles both Chinese and English)
-  // CJK chars: use fontSize * 1.1 * charCount (measureText can return 1em per char for CJK)
-  // Non-CJK: use ctx.measureText().width
-  function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
-    const lines: string[] = [];
-    let current = '';
-    let currentWidth = 0;
+  // Helper: wrap text per-char (correct CJK width estimation), returns final y
+  function wrapText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number): number {
+    const fontSize = parseFloat(ctx.font) || 20;
+    const cjkWidth = fontSize * 1.2;
+    let line = '';
+    let lineWidth = 0;
 
-    // Get font size from ctx.font (e.g. "30px sans-serif" -> 30)
-    const fontSizeMatch = ctx.font.match(/(\d+)px/);
-    const fontSize = fontSizeMatch ? parseInt(fontSizeMatch[1]) : 30;
-    const cjkWidthPerChar = fontSize * 1.1;
+    for (let char of text) {
+      const code = char.charCodeAt(0);
+      const isCJK = (code >= 0x4E00 && code <= 0x9FFF) ||
+                    (code >= 0x3000 && code <= 0x303F) ||
+                    (code >= 0xFF00 && code <= 0xFFEF);
+      const charWidth = isCJK ? cjkWidth : ctx.measureText(char).width;
 
-    // Regex: CJK runs vs non-whitespace tokens
-    const segments = text.match(/[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]+|[^\s]+|\s+/g) || [];
-
-    for (const seg of segments) {
-      if (/^\s+$/.test(seg)) continue;
-
-      const isCJK = /^[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]+$/.test(seg);
-      let segWidth: number;
-
-      if (isCJK) {
-        // CJK: estimate width as fontSize * 1.1 * charCount
-        segWidth = cjkWidthPerChar * seg.length;
+      if (lineWidth + charWidth > maxWidth && line.length > 0) {
+        ctx.fillText(line, x, y);
+        y += lineHeight;
+        line = char;
+        lineWidth = charWidth;
       } else {
-        // Non-CJK: measure normally
-        segWidth = ctx.measureText(seg).width;
-      }
-
-      const testWidth = currentWidth + segWidth;
-      if (testWidth > maxWidth && currentWidth > 0) {
-        lines.push(current);
-        current = seg;
-        currentWidth = segWidth;
-      } else {
-        current = current + seg;
-        currentWidth = testWidth;
+        line += char;
+        lineWidth += charWidth;
       }
     }
-    if (current) lines.push(current);
-    return lines;
+
+    if (line) {
+      ctx.fillText(line, x, y);
+      y += lineHeight;
+    }
+
+    return y;
   }
 
   return (
