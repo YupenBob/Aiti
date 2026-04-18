@@ -275,14 +275,14 @@ export default function App() {
         <div className="mt-10 space-y-3">
           <div className="flex items-center gap-4">
             <a href="https://tools.xsanye.cn" target="_blank" rel="noopener noreferrer" className="text-[12px] text-[#94A3B8] hover:text-white transition-colors flex items-center gap-1">
-              <span>🍀 CloverTools</span>
+              <span>☘️ CloverTools</span>
             </a>
             <span className="text-[#94A3B8] opacity-40">|</span>
             <a href="https://blog.xsanye.cn" target="_blank" rel="noopener noreferrer" className="text-[12px] text-[#94A3B8] hover:text-white transition-colors flex items-center gap-1">
               <span>📝 Blog</span>
             </a>
           </div>
-          <p className="text-[12px] text-[#94A3B8] leading-relaxed">© 2026 York &amp; Clover<br/>Made with ❤️ by 16-year-old creator</p>
+          <p className="text-[12px] text-[#94A3B8] leading-relaxed">© 2026 York &amp; Clover · <span id="busuanzi_value_site_pv">-</span> 次测试<br/>Made with ❤️ by 16-year-old creator</p>
         </div>
       </aside>
 
