@@ -185,25 +185,43 @@ export default function App() {
   }
 
   // Helper: wrap text to maxWidth (handles both Chinese and English)
+  // CJK chars: use fontSize * 1.1 * charCount (measureText can return 1em per char for CJK)
+  // Non-CJK: use ctx.measureText().width
   function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
-    // Split into segments: runs of Chinese chars vs words/English
     const lines: string[] = [];
     let current = '';
+    let currentWidth = 0;
 
-    // Use a regex that matches:
-    // - Chinese/Japanese/Korean characters (CJK Unified Ideographs + related)
-    // - Individual non-whitespace tokens (words/punctuation for English)
+    // Get font size from ctx.font (e.g. "30px sans-serif" -> 30)
+    const fontSizeMatch = ctx.font.match(/(\d+)px/);
+    const fontSize = fontSizeMatch ? parseInt(fontSizeMatch[1]) : 30;
+    const cjkWidthPerChar = fontSize * 1.1;
+
+    // Regex: CJK runs vs non-whitespace tokens
     const segments = text.match(/[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]+|[^\s]+|\s+/g) || [];
 
     for (const seg of segments) {
-      // Skip whitespace-only segments
       if (/^\s+$/.test(seg)) continue;
-      const test = current + seg;
-      if (ctx.measureText(test).width > maxWidth && current) {
+
+      const isCJK = /^[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]+$/.test(seg);
+      let segWidth: number;
+
+      if (isCJK) {
+        // CJK: estimate width as fontSize * 1.1 * charCount
+        segWidth = cjkWidthPerChar * seg.length;
+      } else {
+        // Non-CJK: measure normally
+        segWidth = ctx.measureText(seg).width;
+      }
+
+      const testWidth = currentWidth + segWidth;
+      if (testWidth > maxWidth && currentWidth > 0) {
         lines.push(current);
         current = seg;
+        currentWidth = segWidth;
       } else {
-        current = test;
+        current = current + seg;
+        currentWidth = testWidth;
       }
     }
     if (current) lines.push(current);
