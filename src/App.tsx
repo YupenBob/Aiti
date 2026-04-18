@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Bot, Hexagon, Terminal, ArrowRight, Share2, Sparkles, RefreshCcw } from 'lucide-react';
 import { questions, calculateAITI, PersonalityType } from './data';
 import { cn } from './lib/utils';
+import CloverLogo from './clover-logo.svg';
 
 type Phase = 'intro' | 'test' | 'calculating' | 'result';
 
@@ -43,7 +44,10 @@ export default function App() {
       {/* Sidebar - Matching the template layout */}
       <aside className="hidden md:flex bg-[#1E293B] text-[#F8FAFC] px-[30px] py-[40px] flex-col justify-between overflow-y-auto">
         <div className="logo-area">
-          <h1 className="text-[32px] font-extrabold tracking-[2px] m-0 leading-none">AITI</h1>
+          <div className="flex items-center gap-3 mb-4">
+            <img src={CloverLogo} alt="Clover" className="w-8 h-8" />
+            <h1 className="text-[32px] font-extrabold tracking-[2px] m-0 leading-none">AITI</h1>
+          </div>
           <p className="text-[12px] opacity-60 mt-2 uppercase tracking-[1px]">Silicon Type Indicator</p>
           
           <div className="mt-[60px] flex flex-col gap-6">
@@ -78,7 +82,16 @@ export default function App() {
           </div>
         </div>
         
-        <div className="mt-10">
+        <div className="mt-10 space-y-3">
+          <div className="flex items-center gap-4">
+            <a href="https://tools.xsanye.cn" target="_blank" rel="noopener noreferrer" className="text-[12px] text-[#94A3B8] hover:text-white transition-colors flex items-center gap-1">
+              <span>🍀 CloverTools</span>
+            </a>
+            <span className="text-[#94A3B8] opacity-40">|</span>
+            <a href="https://blog.xsanye.cn" target="_blank" rel="noopener noreferrer" className="text-[12px] text-[#94A3B8] hover:text-white transition-colors flex items-center gap-1">
+              <span>📝 Blog</span>
+            </a>
+          </div>
           <p className="text-[12px] text-[#94A3B8] leading-relaxed">© 2026 York &amp; Clover<br/>Made with ❤️ by 16-year-old creator</p>
         </div>
       </aside>
