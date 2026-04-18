@@ -47,9 +47,9 @@ export default function App() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size (1080x1920 for mobile-style card)
-    canvas.width = 1080;
-    canvas.height = 1350;
+    // Set canvas size (scaled to 2/3 of original: 1080x1350 → 720x900)
+    canvas.width = 720;
+    canvas.height = 900;
 
     // Background gradient
     const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -60,7 +60,7 @@ export default function App() {
 
     // Header accent bar
     ctx.fillStyle = '#2563EB';
-    ctx.fillRect(0, 0, canvas.width, 8);
+    ctx.fillRect(0, 0, canvas.width, 5);
 
     // Clover logo (small, top right)
     const logoImg = new Image();
@@ -71,43 +71,43 @@ export default function App() {
       logoImg.src = cloverLogoSvgUrl;
     });
     if (logoImg.complete && logoImg.naturalWidth > 0) {
-      ctx.drawImage(logoImg, canvas.width - 90, 30, 60, 60);
+      ctx.drawImage(logoImg, canvas.width - 60, 20, 40, 40);
     } else {
       // Fallback: draw a simple clover circle
       ctx.fillStyle = '#D4AF37';
       ctx.beginPath();
-      ctx.arc(canvas.width - 60, 60, 30, 0, Math.PI * 2);
+      ctx.arc(canvas.width - 40, 40, 20, 0, Math.PI * 2);
       ctx.fill();
     }
 
     // AITI badge code
     ctx.fillStyle = '#F59E0B';
-    ctx.font = 'bold 26px sans-serif';
+    ctx.font = 'bold 17px sans-serif';
     ctx.textAlign = 'left';
-    const badgeW = ctx.measureText(result.code).width + 28;
-    roundRect(ctx, 40, 110, badgeW, 50, 8);
+    const badgeW = ctx.measureText(result.code).width + 19;
+    roundRect(ctx, 27, 73, badgeW, 33, 5);
     ctx.fill();
     ctx.fillStyle = '#000';
-    ctx.font = 'bold 26px sans-serif';
+    ctx.font = 'bold 17px sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(result.code, 54, 145);
+    ctx.fillText(result.code, 37, 97);
 
     // Main name
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 130px sans-serif';
-    ctx.fillText(result.name, 40, 290);
+    ctx.font = 'bold 87px sans-serif';
+    ctx.fillText(result.name, 27, 193);
 
     // Title
     ctx.fillStyle = '#F59E0B';
-    ctx.font = 'bold 46px sans-serif';
-    ctx.fillText(result.title, 40, 365);
+    ctx.font = 'bold 31px sans-serif';
+    ctx.fillText(result.title, 27, 243);
 
     // Divider line
     ctx.strokeStyle = '#334155';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(40, 410);
-    ctx.lineTo(canvas.width - 40, 410);
+    ctx.moveTo(27, 273);
+    ctx.lineTo(canvas.width - 27, 273);
     ctx.stroke();
 
     // Traits
@@ -115,51 +115,51 @@ export default function App() {
     result.traits.forEach((trait, idx) => {
       const col = idx % traitsPerRow;
       const row = Math.floor(idx / traitsPerRow);
-      const x = 40 + col * 340;
-      const y = 440 + row * 65;
+      const x = 27 + col * 227;
+      const y = 293 + row * 43;
       ctx.fillStyle = '#334155';
-      roundRect(ctx, x, y, 310, 50, 10);
+      roundRect(ctx, x, y, 207, 33, 7);
       ctx.fill();
       ctx.fillStyle = '#CBD5E1';
-      ctx.font = 'bold 22px sans-serif';
+      ctx.font = 'bold 15px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(trait, x + 155, y + 33);
+      ctx.fillText(trait, x + 103, y + 22);
     });
 
-    // Description — auto-wrap, larger font, more line height
+    // Description — auto-wrap, larger font, more line height (scaled to 2/3)
     ctx.fillStyle = '#E2E8F0';
-    ctx.font = '30px sans-serif';
+    ctx.font = '20px sans-serif';
     ctx.textAlign = 'left';
-    const maxWidth = canvas.width - 80;
-    const lineHeight = 46;
+    const maxWidth = canvas.width - 53;
+    const lineHeight = 31;
     const descLines = wrapText(ctx, result.description, maxWidth);
     descLines.forEach((line, i) => {
-      ctx.fillText(line, 40, 620 + i * lineHeight);
+      ctx.fillText(line, 27, 414 + i * lineHeight);
     });
 
     // Footer divider
-    const footerY = 620 + descLines.length * lineHeight + 50;
+    const footerY = 414 + descLines.length * lineHeight + 33;
     ctx.strokeStyle = '#334155';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(40, footerY);
-    ctx.lineTo(canvas.width - 40, footerY);
+    ctx.moveTo(27, footerY);
+    ctx.lineTo(canvas.width - 27, footerY);
     ctx.stroke();
 
     // Footer text
     ctx.fillStyle = '#94A3B8';
-    ctx.font = '26px sans-serif';
+    ctx.font = '17px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('☘️ CloverTools: tools.xsanye.cn | 📝 Blog: blog.xsanye.cn', canvas.width / 2, footerY + 50);
+    ctx.fillText('☘️ CloverTools: tools.xsanye.cn | 📝 Blog: blog.xsanye.cn', canvas.width / 2, footerY + 33);
 
     ctx.fillStyle = '#64748B';
-    ctx.font = '24px sans-serif';
-    ctx.fillText('© 2026 York & Clover', canvas.width / 2, footerY + 90);
+    ctx.font = '16px sans-serif';
+    ctx.fillText('© 2026 York & Clover', canvas.width / 2, footerY + 63);
 
     // Clover & York attribution
     ctx.fillStyle = '#475569';
-    ctx.font = 'bold 30px sans-serif';
-    ctx.fillText('Clover ☘️ & York (YupenBob)', canvas.width / 2, footerY + 135);
+    ctx.font = 'bold 20px sans-serif';
+    ctx.fillText('Clover ☘️ & York (YupenBob)', canvas.width / 2, footerY + 89);
 
     // Download
     const link = document.createElement('a');
