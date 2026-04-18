@@ -82,32 +82,32 @@ export default function App() {
 
     // AITI badge code
     ctx.fillStyle = '#F59E0B';
-    ctx.font = 'bold 20px sans-serif';
+    ctx.font = 'bold 26px sans-serif';
     ctx.textAlign = 'left';
-    const badgeW = ctx.measureText(result.code).width + 24;
-    roundRect(ctx, 40, 120, badgeW, 42, 6);
+    const badgeW = ctx.measureText(result.code).width + 28;
+    roundRect(ctx, 40, 110, badgeW, 50, 8);
     ctx.fill();
     ctx.fillStyle = '#000';
-    ctx.font = 'bold 20px sans-serif';
+    ctx.font = 'bold 26px sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(result.code, 52, 150);
+    ctx.fillText(result.code, 54, 145);
 
     // Main name
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 110px sans-serif';
-    ctx.fillText(result.name, 40, 310);
+    ctx.font = 'bold 130px sans-serif';
+    ctx.fillText(result.name, 40, 290);
 
     // Title
     ctx.fillStyle = '#F59E0B';
-    ctx.font = 'bold 36px sans-serif';
-    ctx.fillText(result.title, 40, 380);
+    ctx.font = 'bold 46px sans-serif';
+    ctx.fillText(result.title, 40, 365);
 
     // Divider line
     ctx.strokeStyle = '#334155';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(40, 430);
-    ctx.lineTo(canvas.width - 40, 430);
+    ctx.moveTo(40, 410);
+    ctx.lineTo(canvas.width - 40, 410);
     ctx.stroke();
 
     // Traits
@@ -115,50 +115,51 @@ export default function App() {
     result.traits.forEach((trait, idx) => {
       const col = idx % traitsPerRow;
       const row = Math.floor(idx / traitsPerRow);
-      const x = 40 + col * 330;
-      const y = 470 + row * 55;
+      const x = 40 + col * 340;
+      const y = 440 + row * 65;
       ctx.fillStyle = '#334155';
-      roundRect(ctx, x, y, 300, 42, 8);
+      roundRect(ctx, x, y, 310, 50, 10);
       ctx.fill();
-      ctx.fillStyle = '#94A3B8';
-      ctx.font = 'bold 18px sans-serif';
+      ctx.fillStyle = '#CBD5E1';
+      ctx.font = 'bold 22px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(trait, x + 150, y + 28);
+      ctx.fillText(trait, x + 155, y + 33);
     });
 
-    // Description
+    // Description — auto-wrap, larger font, more line height
     ctx.fillStyle = '#E2E8F0';
-    ctx.font = '24px sans-serif';
+    ctx.font = '30px sans-serif';
     ctx.textAlign = 'left';
     const maxWidth = canvas.width - 80;
-    const lineHeight = 36;
+    const lineHeight = 46;
     const descLines = wrapText(ctx, result.description, maxWidth);
     descLines.forEach((line, i) => {
-      ctx.fillText(line, 40, 650 + i * lineHeight);
+      ctx.fillText(line, 40, 620 + i * lineHeight);
     });
 
     // Footer divider
+    const footerY = 620 + descLines.length * lineHeight + 50;
     ctx.strokeStyle = '#334155';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(40, canvas.height - 180);
-    ctx.lineTo(canvas.width - 40, canvas.height - 180);
+    ctx.moveTo(40, footerY);
+    ctx.lineTo(canvas.width - 40, footerY);
     ctx.stroke();
 
     // Footer text
     ctx.fillStyle = '#94A3B8';
-    ctx.font = '22px sans-serif';
+    ctx.font = '26px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('🍀 CloverTools | AITI - 硅基人格测试', canvas.width / 2, canvas.height - 130);
+    ctx.fillText('☘️ CloverTools: tools.xsanye.cn | 📝 Blog: blog.xsanye.cn', canvas.width / 2, footerY + 50);
 
     ctx.fillStyle = '#64748B';
-    ctx.font = '20px sans-serif';
-    ctx.fillText('© 2026 York & Clover', canvas.width / 2, canvas.height - 90);
+    ctx.font = '24px sans-serif';
+    ctx.fillText('© 2026 York & Clover', canvas.width / 2, footerY + 90);
 
     // Clover & York attribution
     ctx.fillStyle = '#475569';
-    ctx.font = 'bold 26px sans-serif';
-    ctx.fillText('Clover ☘️ & York (YupenBob)', canvas.width / 2, canvas.height - 45);
+    ctx.font = 'bold 30px sans-serif';
+    ctx.fillText('Clover ☘️ & York (YupenBob)', canvas.width / 2, footerY + 135);
 
     // Download
     const link = document.createElement('a');
@@ -183,37 +184,30 @@ export default function App() {
     ctx.fill();
   }
 
-  // Helper: wrap text to maxWidth
+  // Helper: wrap text to maxWidth (handles both Chinese and English)
   function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
-    const words = text.split('');
+    // Split into segments: runs of Chinese chars vs words/English
     const lines: string[] = [];
     let current = '';
-    for (const char of words) {
-      const test = current + char;
-      if (ctx.measureText(test).width > maxWidth) {
+
+    // Use a regex that matches:
+    // - Chinese/Japanese/Korean characters (CJK Unified Ideographs + related)
+    // - Individual non-whitespace tokens (words/punctuation for English)
+    const segments = text.match(/[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]+|[^\s]+|\s+/g) || [];
+
+    for (const seg of segments) {
+      // Skip whitespace-only segments
+      if (/^\s+$/.test(seg)) continue;
+      const test = current + seg;
+      if (ctx.measureText(test).width > maxWidth && current) {
         lines.push(current);
-        current = char;
+        current = seg;
       } else {
         current = test;
       }
     }
     if (current) lines.push(current);
-    // Group by words for better wrapping
-    const wordText = text;
-    const wordList = wordText.split(/[\s\n]/).filter(Boolean);
-    const finalLines: string[] = [];
-    let line = '';
-    for (const word of wordList) {
-      const test = line ? `${line} ${word}` : word;
-      if (ctx.measureText(test).width > maxWidth && line) {
-        finalLines.push(line);
-        line = word;
-      } else {
-        line = test;
-      }
-    }
-    if (line) finalLines.push(line);
-    return finalLines;
+    return lines;
   }
 
   return (
