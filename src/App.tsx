@@ -79,7 +79,7 @@ export default function App() {
         </div>
         
         <div className="mt-10">
-          <p className="text-[12px] text-[#94A3B8] leading-relaxed">© 2026 AITI Lab<br/>基于硅基神经网络人格映射模型</p>
+          <p className="text-[12px] text-[#94A3B8] leading-relaxed">© 2026 York &amp; Clover<br/>Made with ❤️ by 16-year-old creator</p>
         </div>
       </aside>
 
