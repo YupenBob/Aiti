@@ -150,7 +150,7 @@ export default function App() {
     ctx.fillStyle = '#94A3B8';
     ctx.font = '13px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('☘️ CloverTools: tools.xsanye.cn | 📝 Blog: blog.xsanye.cn', canvas.width / 2, footerY + 25);
+    ctx.fillText('☘️ CloverTools: tools.xsanye.cn', canvas.width / 2, footerY + 25);
 
     ctx.fillStyle = '#64748B';
     ctx.font = '12px sans-serif';
